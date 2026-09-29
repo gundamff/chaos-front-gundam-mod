@@ -1,3 +1,6 @@
+# Agent scratch / SDD ledger (not part of repo)
+.superpowers/
+
 # Local / binary — never commit
 rom/
 raw/

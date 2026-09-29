@@ -1,0 +1,18 @@
+unit:
+  id: 93
+  clone_from: 31
+  note: "RX-78-2"
+  name_cn: "RX-78-2"
+  info_cn: "地球联邦军的试作型机动战士。"
+  # Icon may reuse clone until texture pipeline covers icon atlas
+  reuse_icon: true
+character:
+  id: 1121
+  clone_from: 84
+  note: "阿姆罗"
+  name_cn: "阿姆罗"
+  info_cn: "白色恶魔。"
+  portrait: 170
+textures:
+  map_unit: "assets/unit-93.png"
+  portrait: "assets/portrait-170.png"
