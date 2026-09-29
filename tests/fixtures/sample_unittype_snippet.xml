@@ -1,0 +1,3 @@
+<UnitTypeData>
+<Item Index="31" Note="异形斗兵" Name="1127" Info="1" Icon="31" Model="31" Kind="2" Type="11" Organism="1" Size="0" HP="650" EN="0" Agility="55" Limit="120" Move="4" HangarS="0" HangarL="0" Weapon1="7" Weapon2="0" Shield="0" Ablity1="16" Ablity2="0" Ablity3="0" Value="2433" Buy="4000" Sell="800" CustomCost="4000" Repair="1200" LevelType="4"/>
+</UnitTypeData>
