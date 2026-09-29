@@ -33,6 +33,7 @@ def apply_v1_tables(
         info_idx=unit_info,
         note=u_cfg["note"],
         reuse_icon=bool(u_cfg.get("reuse_icon", True)),
+        reuse_model=bool(u_cfg.get("reuse_model", True)),
     )
     new_char = xt.clone_character_item(
         template_c,
@@ -40,7 +41,8 @@ def apply_v1_tables(
         name_idx=char_name,
         info_idx=char_info,
         note=c_cfg["note"],
-        portrait=int(c_cfg["portrait"]),
+        portrait=None if c_cfg.get("reuse_portrait", True) else int(c_cfg["portrait"]),
+        reuse_portrait=bool(c_cfg.get("reuse_portrait", True)),
     )
 
     meta = {

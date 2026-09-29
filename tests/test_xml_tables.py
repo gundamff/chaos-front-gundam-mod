@@ -24,6 +24,7 @@ def test_clone_unit_overrides_ids_and_names():
         info_idx=6060,
         note="RX-78-2",
         reuse_icon=True,
+        reuse_model=False,
     )
     assert cloned["Index"] == "93"
     assert cloned["Model"] == "93"
@@ -32,6 +33,17 @@ def test_clone_unit_overrides_ids_and_names():
     assert cloned["Icon"] == "31"  # reuse
     assert cloned["Weapon1"] == "7"
     assert cloned["Note"] == "RX-78-2"
+
+    reused = xt.clone_unit_item(
+        template,
+        new_id=93,
+        name_idx=6059,
+        info_idx=6060,
+        note="RX-78-2",
+        reuse_icon=True,
+        reuse_model=True,
+    )
+    assert reused["Model"] == "31"
 
 
 def test_clone_character_sets_portrait():
@@ -44,10 +56,21 @@ def test_clone_character_sets_portrait():
         info_idx=6062,
         note="阿姆罗",
         portrait=170,
+        reuse_portrait=False,
     )
     assert cloned["Index"] == "1121"
     assert cloned["Portrait"] == "170"
     assert cloned["Name"] == "6061"
+
+    reused = xt.clone_character_item(
+        template,
+        new_id=1121,
+        name_idx=6061,
+        info_idx=6062,
+        note="阿姆罗",
+        reuse_portrait=True,
+    )
+    assert reused["Portrait"] == template["Portrait"]
 
 
 def test_insert_items_preserves_declaration_and_menuname():

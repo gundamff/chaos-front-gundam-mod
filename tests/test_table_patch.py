@@ -65,7 +65,7 @@ def test_apply_v1_tables_round_trip():
     assert unit["Info"] == str(meta["language_indices"]["unit_info"])
     assert char["Name"] == str(meta["language_indices"]["char_name"])
     assert char["Info"] == str(meta["language_indices"]["char_info"])
-    assert char["Portrait"] == "170"
+    assert char["Portrait"] == xt.find_item(chars_in, 84)["Portrait"]
 
     for idx in meta["language_indices"].values():
         row = xt.find_item(langs, idx)

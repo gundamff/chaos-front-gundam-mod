@@ -90,10 +90,12 @@ def clone_unit_item(
     info_idx: int,
     note: str,
     reuse_icon: bool,
+    reuse_model: bool = False,
 ) -> dict[str, str]:
     cloned = deepcopy(template)
     cloned["Index"] = str(new_id)
-    cloned["Model"] = str(new_id)
+    if not reuse_model:
+        cloned["Model"] = str(new_id)
     cloned["Name"] = str(name_idx)
     cloned["Info"] = str(info_idx)
     cloned["Note"] = note
@@ -109,12 +111,16 @@ def clone_character_item(
     name_idx: int,
     info_idx: int,
     note: str,
-    portrait: int,
+    portrait: int | None = None,
+    reuse_portrait: bool = False,
 ) -> dict[str, str]:
     cloned = deepcopy(template)
     cloned["Index"] = str(new_id)
     cloned["Name"] = str(name_idx)
     cloned["Info"] = str(info_idx)
     cloned["Note"] = note
-    cloned["Portrait"] = str(portrait)
+    if not reuse_portrait:
+        if portrait is None:
+            raise ValueError("portrait is required when reuse_portrait is false")
+        cloned["Portrait"] = str(portrait)
     return cloned
