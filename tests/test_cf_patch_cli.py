@@ -181,6 +181,46 @@ def test_patch_tables_always_aborts_when_unit_93_exists(tmp_path, monkeypatch):
     )
 
 
+def test_patch_tables_aborts_before_backup_when_character_exists(tmp_path, monkeypatch):
+    game_root = _game(tmp_path)
+    backups_dir = tmp_path / "backups"
+    assets = _source_assets()
+    assets[1].m_Script = '<CharacterData><Item Index="1121"/></CharacterData>'
+    monkeypatch.setattr(
+        "tools.cf_patch.__main__.UnityPy.load", lambda _: FakeEnvironment(assets)
+    )
+
+    with pytest.raises(RuntimeError, match="CharacterData Index 1121"):
+        patch_tables(game_root, ROOT / "patches/v1-rx78.yaml", backups_dir)
+
+    assert not backups_dir.exists()
+    assert (game_root / "Chaos Front_Data/resources.assets").read_bytes() == (
+        b"original-assets"
+    )
+
+
+def test_patch_tables_always_aborts_when_character_1121_exists(tmp_path, monkeypatch):
+    game_root = _game(tmp_path)
+    backups_dir = tmp_path / "backups"
+    patch_path = tmp_path / "character-1122.yaml"
+    patch_path.write_text(
+        (ROOT / "patches/v1-rx78.yaml")
+        .read_text(encoding="utf-8")
+        .replace("  id: 1121", "  id: 1122", 1),
+        encoding="utf-8",
+    )
+    assets = _source_assets()
+    assets[1].m_Script = '<CharacterData><Item Index="1121"/></CharacterData>'
+    monkeypatch.setattr(
+        "tools.cf_patch.__main__.UnityPy.load", lambda _: FakeEnvironment(assets)
+    )
+
+    with pytest.raises(RuntimeError, match="CharacterData Index 1121"):
+        patch_tables(game_root, patch_path, backups_dir)
+
+    assert not backups_dir.exists()
+
+
 def test_patch_tables_reports_inventory_before_backup_on_missing_asset(
     tmp_path, monkeypatch
 ):
@@ -316,3 +356,17 @@ def test_main_wires_texture_injection_unless_tables_only(
 
     assert exit_code == 0
     assert captured["inject_texture_assets"] is expected
+
+
+def test_patch_tables_writes_patch_meta_into_backup_directory(tmp_path, monkeypatch):
+    game_root = _game(tmp_path)
+    env = FakeEnvironment(_source_assets())
+    monkeypatch.setattr("tools.cf_patch.__main__.UnityPy.load", lambda _: env)
+
+    backup_dir, meta = patch_tables(
+        game_root, ROOT / "patches/v1-rx78.yaml", tmp_path / "backups"
+    )
+
+    assert (backup_dir / "patch-meta.json").read_text(encoding="utf-8") == (
+        __import__("json").dumps(meta, ensure_ascii=False, indent=2) + "\n"
+    )

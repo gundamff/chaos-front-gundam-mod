@@ -1,7 +1,10 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from tools.common.es3 import get_value, parse_es3, stringify_es3
+from tools.save_inject.__main__ import inject_save
 from tools.save_inject.inject import inject_v1
 
 FIXTURE = Path(__file__).parent / "fixtures" / "minimal-save.json"
@@ -48,3 +51,63 @@ def test_inject_v1_idempotent():
     units = get_value(twice, "PlayerUnits")
     matches = [u for u in units if u.get("unitType") == 93 and u.get("characterId") == 1121]
     assert len(matches) == 1
+
+
+def test_inject_v1_rejects_mismatched_character_and_exp_lengths():
+    doc = _load_fixture()
+    get_value(doc, "PlayerCharacterEXPs").pop()
+
+    with pytest.raises(
+        ValueError,
+        match="PlayerCharacters and PlayerCharacterEXPs lengths differ",
+    ):
+        inject_v1(doc)
+
+
+def test_inject_save_creates_backup_by_default_and_atomically_replaces(
+    tmp_path, monkeypatch
+):
+    save_path = tmp_path / "savedata0.cf"
+    original = FIXTURE.read_text(encoding="utf-8")
+    save_path.write_text(original, encoding="utf-8")
+    replacements = []
+    real_replace = __import__("os").replace
+
+    def replace(source, destination):
+        source = Path(source)
+        destination = Path(destination)
+        assert source.parent == destination.parent
+        assert source != destination
+        replacements.append((source, destination))
+        real_replace(source, destination)
+
+    monkeypatch.setattr("tools.save_inject.__main__.os.replace", replace)
+
+    inject_save(save_path)
+
+    assert Path(str(save_path) + ".bak").read_text(encoding="utf-8") == original
+    assert replacements and replacements[-1][1] == save_path
+    assert 1121 in get_value(parse_es3(save_path.read_text(encoding="utf-8")), "PlayerCharacters")
+
+
+def test_inject_save_can_opt_out_of_backup(tmp_path):
+    save_path = tmp_path / "savedata0.cf"
+    save_path.write_text(FIXTURE.read_text(encoding="utf-8"), encoding="utf-8")
+
+    inject_save(save_path, backup=False)
+
+    assert not Path(str(save_path) + ".bak").exists()
+
+
+def test_inject_save_does_not_mutate_or_backup_invalid_save(tmp_path):
+    save_path = tmp_path / "savedata0.cf"
+    doc = _load_fixture()
+    get_value(doc, "PlayerCharacterEXPs").pop()
+    original = json.dumps(doc)
+    save_path.write_text(original, encoding="utf-8")
+
+    with pytest.raises(ValueError, match="lengths differ"):
+        inject_save(save_path)
+
+    assert save_path.read_text(encoding="utf-8") == original
+    assert not Path(str(save_path) + ".bak").exists()

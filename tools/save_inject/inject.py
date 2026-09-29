@@ -14,13 +14,19 @@ def inject_v1(
     exp: int = 0,
 ) -> dict[str, Any]:
     out = deepcopy(doc)
+    chars = list(get_value(out, "PlayerCharacters"))
+    exps = list(get_value(out, "PlayerCharacterEXPs"))
+    if len(chars) != len(exps):
+        raise ValueError(
+            "PlayerCharacters and PlayerCharacterEXPs lengths differ; "
+            "refusing to modify save"
+        )
+
     unlocked = list(get_value(out, "PlayerUnlockedUnitTypes"))
     if unit_id not in unlocked:
         unlocked.append(unit_id)
     set_value(out, "PlayerUnlockedUnitTypes", unlocked)
 
-    chars = list(get_value(out, "PlayerCharacters"))
-    exps = list(get_value(out, "PlayerCharacterEXPs"))
     if character_id not in chars:
         chars.append(character_id)
         exps.append(20000)

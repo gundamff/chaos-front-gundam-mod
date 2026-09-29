@@ -24,7 +24,9 @@ python -m tools.verify_tables --patched --patch patches/v1-rx78.yaml --game "F:\
 python -m tools.cf_patch --restore backups\<timestamp>
 ```
 
-Adjust `--game` and `--save` paths for your install. After patching, note the backup folder printed as `Backup: backups\<timestamp>`.
+Adjust `--game` and `--save` paths for your install. After patching, note the backup folder printed as `Backup: backups\<timestamp>`; it also contains `patch-meta.json` for verification.
+
+Save injection creates `<save>.bak` by default before atomically replacing the save. Use `--no-backup` only when you deliberately do not want that safety copy. To restore, close the game and rename the `.bak` file over the modified save (for example, rename `savedata0.cf.bak` to `savedata0.cf`).
 
 ### Known limitation: texture injection (v1)
 
@@ -39,7 +41,7 @@ python -m tools.verify_tables --baseline --game "F:\SteamLibrary\steamapps\commo
 python -m tools.verify_tables --patched --patch patches/v1-rx78.yaml --meta backups\<timestamp>\patch-meta.json
 ```
 
-If `patch-meta.json` is absent, `--patch` alone is enough; language indices are read from live unit 93 / character 1121 rows.
+`cf_patch` writes `patch-meta.json` into its printed backup directory after a successful patch. If it is absent, `--patch` alone is enough; language indices are read from live unit 93 / character 1121 rows.
 
 Manual acceptance checklist: [docs/acceptance-v1.md](docs/acceptance-v1.md).
 

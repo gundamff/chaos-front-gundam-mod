@@ -53,6 +53,16 @@ def patch_tables(
         if str(unit_id) in unit_indexes:
             raise RuntimeError(f"UnitTypeData Index {unit_id} already exists; aborting")
 
+        character_id = int(patch["character"]["id"])
+        characters = xt.parse_items(source_xml["CharacterData"])
+        character_indexes = {item.get("Index") for item in characters}
+        if "1121" in character_indexes:
+            raise RuntimeError("CharacterData Index 1121 already exists; aborting")
+        if str(character_id) in character_indexes:
+            raise RuntimeError(
+                f"CharacterData Index {character_id} already exists; aborting"
+            )
+
         unit_xml, char_xml, lang_xml, meta = apply_v1_tables(
             source_xml["UnitTypeData"],
             source_xml["CharacterData"],
@@ -93,6 +103,10 @@ def patch_tables(
         if temp_dir is not None:
             shutil.rmtree(temp_dir, ignore_errors=True)
 
+    (backup_dir / "patch-meta.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
     return backup_dir, meta
 
 
