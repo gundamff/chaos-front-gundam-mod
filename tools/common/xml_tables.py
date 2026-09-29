@@ -33,6 +33,37 @@ def render_items_document(root_tag: str, items: list[dict[str, str]]) -> str:
     return f"<{root_tag}>{inner}</{root_tag}>"
 
 
+def insert_items(xml: str, new_items: list[dict[str, str]]) -> str:
+    """Append Item rows while preserving xml declaration, MenuName wrapper, and newlines.
+
+    Chaos Front TextAssets use:
+      <?xml ...?>\\r\\n<root>\\r\\n\\t<MenuName>\\r\\n\\t\\t<Item .../>...\\r\\n\\t</MenuName>\\r\\n</root>
+    Rewriting the whole document without MenuName / declaration breaks the in-game UI.
+    """
+    if not new_items:
+        return xml
+
+    idx = xml.rfind("</MenuName>")
+    if idx < 0:
+        match = re.search(
+            r"</(?:UnitTypeData|CharacterData|LanguageData)>\s*\Z",
+            xml,
+        )
+        if not match:
+            raise ValueError("cannot find </MenuName> or root close for Item insert")
+        idx = match.start()
+
+    newline = "\r\n" if "\r\n" in xml else "\n"
+    indent = "\t\t"
+    indent_match = re.search(r"(\r?\n)([ \t]*)<Item\s", xml)
+    if indent_match:
+        newline = indent_match.group(1)
+        indent = indent_match.group(2)
+
+    block = "".join(f"{newline}{indent}{_render_item(it)}" for it in new_items)
+    return xml[:idx] + block + xml[idx:]
+
+
 def append_language(
     items: list[dict[str, str]], *, note: str, cn: str
 ) -> tuple[list[dict[str, str]], int]:

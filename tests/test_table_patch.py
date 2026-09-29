@@ -70,3 +70,8 @@ def test_apply_v1_tables_round_trip():
     for idx in meta["language_indices"].values():
         row = xt.find_item(langs, idx)
         assert row["CN"] != ""
+
+    for doc in (u, c, l):
+        assert doc.startswith('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
+        assert "<MenuName>" in doc and doc.count("<MenuName>") == 1
+        assert "</MenuName>" in doc

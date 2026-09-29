@@ -21,29 +21,26 @@ def apply_v1_tables(
     langs, char_info = xt.append_language(
         langs, note=f'{c_cfg["note"]}_info', cn=c_cfg["info_cn"]
     )
+    new_lang_items = langs[-4:]
 
     template_u = xt.find_item(units, int(u_cfg["clone_from"]))
     template_c = xt.find_item(chars, int(c_cfg["clone_from"]))
 
-    units.append(
-        xt.clone_unit_item(
-            template_u,
-            new_id=int(u_cfg["id"]),
-            name_idx=unit_name,
-            info_idx=unit_info,
-            note=u_cfg["note"],
-            reuse_icon=bool(u_cfg.get("reuse_icon", True)),
-        )
+    new_unit = xt.clone_unit_item(
+        template_u,
+        new_id=int(u_cfg["id"]),
+        name_idx=unit_name,
+        info_idx=unit_info,
+        note=u_cfg["note"],
+        reuse_icon=bool(u_cfg.get("reuse_icon", True)),
     )
-    chars.append(
-        xt.clone_character_item(
-            template_c,
-            new_id=int(c_cfg["id"]),
-            name_idx=char_name,
-            info_idx=char_info,
-            note=c_cfg["note"],
-            portrait=int(c_cfg["portrait"]),
-        )
+    new_char = xt.clone_character_item(
+        template_c,
+        new_id=int(c_cfg["id"]),
+        name_idx=char_name,
+        info_idx=char_info,
+        note=c_cfg["note"],
+        portrait=int(c_cfg["portrait"]),
     )
 
     meta = {
@@ -57,8 +54,8 @@ def apply_v1_tables(
         },
     }
     return (
-        xt.render_items_document("UnitTypeData", units),
-        xt.render_items_document("CharacterData", chars),
-        xt.render_items_document("LanguageData", langs),
+        xt.insert_items(unit_xml, [new_unit]),
+        xt.insert_items(char_xml, [new_char]),
+        xt.insert_items(lang_xml, new_lang_items),
         meta,
     )

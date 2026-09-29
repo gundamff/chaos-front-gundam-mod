@@ -48,3 +48,23 @@ def test_clone_character_sets_portrait():
     assert cloned["Index"] == "1121"
     assert cloned["Portrait"] == "170"
     assert cloned["Name"] == "6061"
+
+
+def test_insert_items_preserves_declaration_and_menuname():
+    xml = (FIX / "sample_unittype_snippet.xml").read_text(encoding="utf-8")
+    template = xt.find_item(xt.parse_items(xml), 31)
+    cloned = xt.clone_unit_item(
+        template,
+        new_id=93,
+        name_idx=6059,
+        info_idx=6060,
+        note="RX-78-2",
+        reuse_icon=True,
+    )
+    out = xt.insert_items(xml, [cloned])
+    assert out.startswith('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>')
+    assert "<MenuName>" in out and "</MenuName>" in out
+    assert out.count("<MenuName>") == 1
+    assert 'Index="31"' in out and 'Index="93"' in out
+    assert out.index('Index="31"') < out.index('Index="93"')
+    assert out.index('Index="93"') < out.index("</MenuName>")

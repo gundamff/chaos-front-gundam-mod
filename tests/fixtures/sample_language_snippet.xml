@@ -1,4 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <LanguageData>
-<Item Index="1" Note="界面用" NoteEN="UI" EN="None" CN="无" TC="無" JP="無し" ES="Ninguno"/>
-<Item Index="2" Note="x" NoteEN="x" EN="x" CN="测试" TC="測試" JP="x" ES="x"/>
+	<MenuName>
+		<Item Index="1" Note="界面用" NoteEN="UI" EN="None" CN="无" TC="無" JP="無し" ES="Ninguno"/>
+		<Item Index="2" Note="x" NoteEN="x" EN="x" CN="测试" TC="測試" JP="x" ES="x"/>
+	</MenuName>
 </LanguageData>
