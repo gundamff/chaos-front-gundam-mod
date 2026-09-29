@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import pytest
 
 from tools.cf_patch.__main__ import main, patch_tables
+from tools.cf_patch.backup import restore_backup
 from tools.cf_patch.unity_text import TextAssetDiscoveryError
 
 
@@ -155,6 +156,31 @@ def test_patch_tables_aborts_before_backup_when_unit_exists(tmp_path, monkeypatc
     )
 
 
+def test_patch_tables_always_aborts_when_unit_93_exists(tmp_path, monkeypatch):
+    game_root = _game(tmp_path)
+    backups_dir = tmp_path / "backups"
+    patch_path = tmp_path / "unit-94.yaml"
+    patch_path.write_text(
+        (ROOT / "patches/v1-rx78.yaml")
+        .read_text(encoding="utf-8")
+        .replace("  id: 93", "  id: 94", 1),
+        encoding="utf-8",
+    )
+    assets = _source_assets()
+    assets[0].m_Script = '<UnitTypeData><Item Index="93"/></UnitTypeData>'
+    monkeypatch.setattr(
+        "tools.cf_patch.__main__.UnityPy.load", lambda _: FakeEnvironment(assets)
+    )
+
+    with pytest.raises(RuntimeError, match="Index 93"):
+        patch_tables(game_root, patch_path, backups_dir)
+
+    assert not backups_dir.exists()
+    assert (game_root / "Chaos Front_Data/resources.assets").read_bytes() == (
+        b"original-assets"
+    )
+
+
 def test_patch_tables_reports_inventory_before_backup_on_missing_asset(
     tmp_path, monkeypatch
 ):
@@ -181,6 +207,39 @@ def test_main_restore_restores_default_resource_files(tmp_path):
     exit_code = main(["--restore", str(backup_dir), "--game", str(game_root)])
 
     assert exit_code == 0
+    assert (game_root / "Chaos Front_Data/resources.assets").read_bytes() == (
+        b"backup-assets"
+    )
+    assert (game_root / "Chaos Front_Data/resources.assets.resS").read_bytes() == (
+        b"backup-stream"
+    )
+
+
+def test_restore_backup_stages_each_file_before_replace(tmp_path, monkeypatch):
+    game_root = _game(tmp_path)
+    backup_dir = tmp_path / "backup"
+    backup_dir.mkdir()
+    (backup_dir / "resources.assets").write_bytes(b"backup-assets")
+    (backup_dir / "resources.assets.resS").write_bytes(b"backup-stream")
+    replacements = []
+    real_replace = __import__("os").replace
+
+    def replace(source, destination):
+        source = Path(source)
+        destination = Path(destination)
+        assert source.parent == destination.parent
+        assert source != destination
+        replacements.append((source.name, destination.name))
+        real_replace(source, destination)
+
+    monkeypatch.setattr("tools.cf_patch.backup.os.replace", replace)
+
+    restore_backup(backup_dir, game_root)
+
+    assert [destination for _, destination in replacements] == [
+        "resources.assets",
+        "resources.assets.resS",
+    ]
     assert (game_root / "Chaos Front_Data/resources.assets").read_bytes() == (
         b"backup-assets"
     )

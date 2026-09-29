@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from datetime import datetime
+import os
 from pathlib import Path
 import shutil
+import tempfile
 
 from tools.common.paths import game_data_dir, resources_assets
 
@@ -39,4 +41,14 @@ def restore_backup(backup_dir: Path, game_root: Path) -> None:
     for name in _RESOURCE_FILES:
         source = backup_dir / name
         if source.is_file():
-            shutil.copy2(source, destination_dir / name)
+            destination = destination_dir / name
+            file_descriptor, staged_name = tempfile.mkstemp(
+                prefix=f".{name}.", suffix=".tmp", dir=destination_dir
+            )
+            os.close(file_descriptor)
+            staged = Path(staged_name)
+            try:
+                shutil.copy2(source, staged)
+                os.replace(staged, destination)
+            finally:
+                staged.unlink(missing_ok=True)

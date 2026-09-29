@@ -41,7 +41,10 @@ def patch_tables(
 
         unit_id = int(patch["unit"]["id"])
         units = xt.parse_items(source_xml["UnitTypeData"])
-        if any(item.get("Index") == str(unit_id) for item in units):
+        unit_indexes = {item.get("Index") for item in units}
+        if "93" in unit_indexes:
+            raise RuntimeError("UnitTypeData Index 93 already exists; aborting")
+        if str(unit_id) in unit_indexes:
             raise RuntimeError(f"UnitTypeData Index {unit_id} already exists; aborting")
 
         unit_xml, char_xml, lang_xml, meta = apply_v1_tables(
