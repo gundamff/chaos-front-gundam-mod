@@ -14,6 +14,7 @@ def _fixture_patch():
     return {
         **patch,
         "unit": {**patch["unit"], "clone_from": 31},
+        # fixtures only have character Index 84; keep fixture clone target
         "character": {**patch["character"], "clone_from": 84},
     }
 

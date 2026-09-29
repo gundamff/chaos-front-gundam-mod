@@ -8,8 +8,9 @@ unit:
   reuse_icon: true
   reuse_model: true
 character:
+  # Type=1 = 机体驾驶员；Type=0 = 舰长。勿再克隆舰长模板。
   id: 1121
-  clone_from: 84
+  clone_from: 102
   note: "阿姆罗"
   name_cn: "阿姆罗"
   info_cn: "白色恶魔。"
