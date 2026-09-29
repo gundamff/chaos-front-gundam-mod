@@ -1,0 +1,11 @@
+{
+  "unit_texture_candidates": [
+    "mapUnit93",
+    "mapUnit93_0"
+  ],
+  "portrait_texture": "portrait170",
+  "files": {
+    "unit": "assets/unit-93.png",
+    "portrait": "assets/portrait-170.png"
+  }
+}
