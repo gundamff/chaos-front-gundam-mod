@@ -1,0 +1,19 @@
+# Local / binary — never commit
+rom/
+raw/
+backups/
+*.gba
+*.GBA
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
