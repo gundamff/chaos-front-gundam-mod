@@ -197,6 +197,41 @@ def test_patch_tables_reports_inventory_before_backup_on_missing_asset(
     assert not backups_dir.exists()
 
 
+def test_texture_injection_runs_after_backup_and_preserves_original_on_abort(
+    tmp_path, monkeypatch
+):
+    game_root = _game(tmp_path)
+    backups_dir = tmp_path / "backups"
+    env = FakeEnvironment(_source_assets())
+
+    def abort_texture_injection(env_arg, manifest, assets_root):
+        assert env_arg is env
+        backups = list(backups_dir.iterdir())
+        assert len(backups) == 1
+        assert (backups[0] / "resources.assets").read_bytes() == b"original-assets"
+        raise RuntimeError("cannot safely clone textures")
+
+    monkeypatch.setattr("tools.cf_patch.__main__.UnityPy.load", lambda _: env)
+    monkeypatch.setattr(
+        "tools.cf_patch.__main__.inject_textures", abort_texture_injection
+    )
+
+    with pytest.raises(RuntimeError, match="cannot safely clone"):
+        patch_tables(
+            game_root,
+            ROOT / "patches/v1-rx78.yaml",
+            backups_dir,
+            inject_texture_assets=True,
+        )
+
+    assert (game_root / "Chaos Front_Data/resources.assets").read_bytes() == (
+        b"original-assets"
+    )
+    assert (game_root / "Chaos Front_Data/resources.assets.resS").read_bytes() == (
+        b"original-stream"
+    )
+
+
 def test_main_restore_restores_default_resource_files(tmp_path):
     game_root = _game(tmp_path)
     backup_dir = tmp_path / "backup"
@@ -246,3 +281,38 @@ def test_restore_backup_stages_each_file_before_replace(tmp_path, monkeypatch):
     assert (game_root / "Chaos Front_Data/resources.assets.resS").read_bytes() == (
         b"backup-stream"
     )
+
+
+@pytest.mark.parametrize(
+    ("extra_args", "expected"),
+    [([], True), (["--tables-only"], False)],
+)
+def test_main_wires_texture_injection_unless_tables_only(
+    tmp_path, monkeypatch, extra_args, expected
+):
+    captured = {}
+
+    def fake_patch_tables(
+        game_root,
+        patch_path,
+        backups_dir,
+        *,
+        inject_texture_assets=False,
+    ):
+        captured["inject_texture_assets"] = inject_texture_assets
+        return tmp_path / "backup", {"unit_id": 93, "character_id": 1121}
+
+    monkeypatch.setattr("tools.cf_patch.__main__.patch_tables", fake_patch_tables)
+
+    exit_code = main(
+        [
+            "--game",
+            str(tmp_path / "game"),
+            "--patch",
+            str(tmp_path / "patch.yaml"),
+            *extra_args,
+        ]
+    )
+
+    assert exit_code == 0
+    assert captured["inject_texture_assets"] is expected

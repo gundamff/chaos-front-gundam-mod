@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 from pathlib import Path
 import shutil
@@ -12,6 +13,7 @@ import yaml
 
 from tools.cf_patch.backup import backup_resources, restore_backup
 from tools.cf_patch.table_patch import apply_v1_tables
+from tools.cf_patch.textures import inject_textures
 from tools.cf_patch.unity_text import (
     TextAssetDiscoveryError,
     read_text_asset,
@@ -25,7 +27,11 @@ _TABLE_NAMES = ("UnitTypeData", "CharacterData", "LanguageData")
 
 
 def patch_tables(
-    game_root: Path, patch_path: Path, backups_dir: Path
+    game_root: Path,
+    patch_path: Path,
+    backups_dir: Path,
+    *,
+    inject_texture_assets: bool = False,
 ) -> tuple[Path, dict]:
     game_root = Path(game_root)
     assets_path = resources_assets(game_root)
@@ -58,6 +64,12 @@ def patch_tables(
         temp_dir = Path(
             tempfile.mkdtemp(prefix=".cf-patch-", dir=assets_path.parent)
         )
+        if inject_texture_assets:
+            root = repo_root()
+            manifest = json.loads(
+                (root / "assets/manifest.json").read_text(encoding="utf-8")
+            )
+            meta["textures"] = inject_textures(env, manifest, root)
         write_text_asset(env, "UnitTypeData", unit_xml)
         write_text_asset(env, "CharacterData", char_xml)
         write_text_asset(env, "LanguageData", lang_xml)
@@ -115,7 +127,10 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         backup_dir, meta = patch_tables(
-            args.game, args.patch, repo_root() / "backups"
+            args.game,
+            args.patch,
+            repo_root() / "backups",
+            inject_texture_assets=not args.tables_only,
         )
     except TextAssetDiscoveryError as exc:
         print(f"BLOCKED: {exc}", file=sys.stderr)
