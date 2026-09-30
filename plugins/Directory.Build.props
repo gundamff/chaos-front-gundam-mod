@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Override with -p:GameDir=... if Steam path differs -->
+    <GameDir Condition="'$(GameDir)' == ''">F:\SteamLibrary\steamapps\common\Chaos Front</GameDir>
+    <ManagedDir>$(GameDir)\Chaos Front_Data\Managed</ManagedDir>
+    <BepInExCore>$(GameDir)\BepInEx\core</BepInExCore>
+    <BepInExPlugins>$(GameDir)\BepInEx\plugins</BepInExPlugins>
+  </PropertyGroup>
+</Project>

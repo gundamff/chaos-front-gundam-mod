@@ -14,6 +14,12 @@ __pycache__/
 .venv/
 venv/
 
+# C# / BepInEx plugin build
+plugins/**/bin/
+plugins/**/obj/
+*.user
+tools/.csharp-compiler/
+
 # OS / editor
 .DS_Store
 Thumbs.db

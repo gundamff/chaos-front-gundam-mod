@@ -1,0 +1,78 @@
+{
+  "skills": [
+    {
+      "id": 66,
+      "cloneFrom": 40,
+      "name": "摇摆闪避",
+      "info": "发动后，下一次受到的攻击必定回避。"
+    }
+  ],
+  "units": [
+    {
+      "id": 93,
+      "cloneFrom": 31,
+      "name": "RX-78-2",
+      "info": "地球联邦军的试作型机动战士。",
+      "iconPng": "unit-rx78.png",
+      "mapPng": "map-rx78.png"
+    },
+    {
+      "id": 94,
+      "cloneFrom": 31,
+      "name": "扎古Ⅱ",
+      "info": "吉翁公国军的量产型机动战士。",
+      "iconPng": "unit-zaku2.png",
+      "mapPng": "map-zaku2.png"
+    },
+    {
+      "id": 95,
+      "cloneFrom": 50,
+      "name": "艾尔梅斯",
+      "info": "吉翁公国军的机动装甲，搭载精神感应系统。",
+      "iconPng": "unit-elmeth.png",
+      "mapPng": "map-elmeth.png"
+    },
+    {
+      "id": 96,
+      "cloneFrom": 12,
+      "name": "白色木马",
+      "info": "地球联邦军佩加萨斯级强袭扬陆舰。",
+      "iconPng": "unit-whitebase.png",
+      "mapPng": "map-whitebase.png"
+    }
+  ],
+  "characters": [
+    {
+      "id": 1121,
+      "cloneFrom": 102,
+      "name": "阿姆罗",
+      "info": "白色恶魔。",
+      "portraitId": 170,
+      "portraitPng": "portrait-amuro.png",
+      "shiftX": 4,
+      "shiftY": -15,
+      "skills": [66, 9, 45],
+      "joinLv": 4
+    },
+    {
+      "id": 1122,
+      "cloneFrom": 102,
+      "name": "夏亚",
+      "info": "红色彗星。",
+      "portraitId": 171,
+      "portraitPng": "portrait-char.png",
+      "shiftX": 0,
+      "shiftY": -15
+    },
+    {
+      "id": 1123,
+      "cloneFrom": 102,
+      "name": "拉拉",
+      "info": "新人类少女。",
+      "portraitId": 172,
+      "portraitPng": "portrait-lalah.png",
+      "shiftX": 4,
+      "shiftY": -15
+    }
+  ]
+}

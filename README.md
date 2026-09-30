@@ -45,11 +45,26 @@ python -m tools.verify_tables --patched --patch patches/v1-rx78.yaml --meta back
 
 Manual acceptance checklist: [docs/acceptance-v1.md](docs/acceptance-v1.md).
 
+## BepInEx runtime plugin (preferred for next steps)
+
+Community mods use BepInEx DLLs ([Snrasha plugins](https://snrasha.github.io/chaosfront/plugins.html)). This repo now has a Mono plugin skeleton:
+
+- Source: [`plugins/CfGundamMod/`](plugins/CfGundamMod/)
+- Docs: [`plugins/README.md`](plugins/README.md)
+- Build: `dotnet build -c Release` from that folder (auto-deploys to game `BepInEx\plugins`)
+
+**v0.2** runtime-clones unit 93 (RX-78-2) + character 1121 (阿姆罗), unlocks on load/new game. See `plugins/README.md`. Texture swap is 0.3.
+
+Portrait candidate from Genesis Character Icons: `assets/portrait-170.png` (Amuro).
+
 ## Deferred (same pipeline, not v1)
 
 - **Ships** (`kind=1`): append via the same YAML `clone_from` pattern once v1 is accepted; no separate architecture.
-- **Texture visual smoke**: blocked until a safe Texture2D writer exists; do not claim texture smoke passed for v1.
+- **Texture visual smoke**: offline UnityPy path still blocked; prefer BepInEx runtime texture swap once probes are done.
 
 ## Design
 
 See [docs/superpowers/specs/2026-09-29-chaos-front-gundam-mod-design.md](docs/superpowers/specs/2026-09-29-chaos-front-gundam-mod-design.md) for scope, v1 success criteria, and architecture.
+
+
+https://www.spriters-resource.com/nintendo_switch/sdgundamggenerationgenesis/
